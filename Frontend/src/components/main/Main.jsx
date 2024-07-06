@@ -1,6 +1,6 @@
 import { useTheme } from "@emotion/react";
 import { Close, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight } from "@mui/icons-material";
-import { Box, Button, Card, Container, Dialog, IconButton, Rating, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Button, Card, CircularProgress, Container, Dialog, IconButton, Rating, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useState } from "react";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -8,6 +8,7 @@ import CardMedia from '@mui/material/CardMedia';
 import AddShoppingCartOutlinedIcon from '@mui/icons-material/AddShoppingCartOutlined';
 import ProductDetails from "./ProductDetails";
 import { useGetproductByNameQuery } from "../../Redux/product";
+import { AnimatePresence, motion } from "framer-motion";
 export default function Main() {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
@@ -29,17 +30,29 @@ export default function Main() {
     const { data, error, isLoading } = useGetproductByNameQuery(myData);
     //handle the button of products
     const handleAlignment = (event, newValue) => {
-        setmyData(newValue);
+        if (newValue !== null) {
+            setmyData(newValue);
+        }
     };
+    // handel information for each product it selects
+    const [clickedProduct, setclickedProduct] = useState({});
     //
     if (isLoading) {
         return (
-            <Typography variant="h6">LOADING...</Typography>
+            <Box sx={{ py: 9, textAlign: "center" }}>
+                <CircularProgress />
+            </Box>
         );
     }
     if (error) {
-        // @ts-ignore
-        <Typography variant="h6">{error.message}</Typography>
+
+        return (
+            <Container sx={{ py: 9, textAlign: "center" }}>
+                {/* @ts-ignore */}
+                <Typography variant="h6">{error.error}</Typography>
+                <Typography variant="h6">Please try again later</Typography>
+            </Container>
+        );
     }
     if (data) {
         return (
@@ -77,38 +90,49 @@ export default function Main() {
                 </Stack>
 
                 <Stack direction={"row"} flexWrap={"wrap"} justifyContent={"space-between"}>
-                    {data.data.map((item) => {
-                        return (
-                            <Card key={item} sx={{ maxWidth: 333, mt: 6, ":hover .MuiCardMedia-root": { scale: "1.1", transition: "0.35s", rotate: "1deg" } }}>
-                                <CardMedia
-                                    sx={{ height: 277 }}
-                                    // @ts-ignore
-                                    image={`${item.attributes.productImg.data[0].attributes.url}`}
-                                    title="product image"
-                                />
-                                <CardContent>
-                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-                                        <Typography gutterBottom variant="h6" component="div">
-                                            {item.attributes.productTitle}
+                    <AnimatePresence>
+                        {data.data.map((item) => {
+                            return (
+                                <Card component={motion.div}
+                                    layout
+                                    initial={{ transform: "scale(0)" }}
+                                    animate={{ transform: "scale(1)" }}
+                                    transition={{ duration: 1.6, type: "spring", stiffness: 50 }}
+                                    key={item.id} sx={{ maxWidth: 333, mt: 6, ":hover .MuiCardMedia-root": { scale: "1.1", transition: "0.35s", rotate: "1deg" } }}>
+                                    <CardMedia
+                                        sx={{ height: 277 }}
+                                        // @ts-ignore
+                                        image={`${item.attributes.productImg.data[0].attributes.url}`}
+                                        title="product image"
+                                    />
+                                    <CardContent>
+                                        <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                            <Typography gutterBottom variant="h6" component="div">
+                                                {item.attributes.productTitle}
+                                            </Typography>
+                                            <Typography variant="subtitle1" component="p">
+                                                {item.attributes.productPrice}
+                                            </Typography>
+                                        </Stack>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {item.attributes.productDescription}
                                         </Typography>
-                                        <Typography variant="subtitle1" component="p">
-                                            {item.attributes.productPrice}
-                                        </Typography>
-                                    </Stack>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {item.attributes.productDescription}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions sx={{ justifyContent: "space-between" }}>
-                                    <Button onClick={handleClickOpen} sx={{ textTransform: "capitalize" }} size="large">
-                                        <AddShoppingCartOutlinedIcon sx={{ mr: 1 }} fontSize="small" />
-                                        add to cart
-                                    </Button>
-                                    <Rating name="read-only" value={item.attributes.productRating} precision={0.5} readOnly />
-                                </CardActions>
-                            </Card>
-                        );
-                    })}
+                                    </CardContent>
+                                    <CardActions sx={{ justifyContent: "space-between" }}>
+                                        <Button onClick={() => {
+                                            handleClickOpen()
+                                            setclickedProduct(item)
+                                        }}
+                                            sx={{ textTransform: "capitalize" }} size="large">
+                                            <AddShoppingCartOutlinedIcon sx={{ mr: 1 }} fontSize="small" />
+                                            add to cart
+                                        </Button>
+                                        <Rating name="read-only" value={item.attributes.productRating} precision={0.5} readOnly />
+                                    </CardActions>
+                                </Card>
+                            );
+                        })}
+                    </AnimatePresence>
                 </Stack>
                 <Dialog
                     sx={{ ".MuiPaper-root": { minWidth: { xs: "100%", md: 800 } } }}
@@ -123,7 +147,7 @@ export default function Main() {
                         }} >
                         <Close />
                     </IconButton>
-                    <ProductDetails />
+                    <ProductDetails item={clickedProduct} />
                 </Dialog>
             </Container>
         );

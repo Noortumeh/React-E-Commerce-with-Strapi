@@ -10,8 +10,8 @@ import { useTheme } from "@emotion/react";
 import IconSection from "./IconSection";
 
 const mySlder = [
-    { text: "MEN", link: "src/images/banner-15.jpg" },
-    { text: "WOMEN", link: "src/images/banner-25.jpg" }
+    { text: "MEN", link: "./images/banner-15.jpg" },
+    { text: "WOMEN", link: "./images/banner-25.jpg" }
 ]
 export default function Hero() {
     const theme = useTheme();
@@ -92,7 +92,7 @@ export default function Hero() {
                 {/* image components */}
                 <Box sx={{ display: { xs: "none", md: "block" }, minWidth: "26.36%" }}>
                     <Box sx={{ position: "relative" }}>
-                        <img width={"100%"} src="src\images\banner-17.jpg" alt="shoes image" />
+                        <img width={"100%"} src=".\images\banner-17.jpg" alt="shoes image" />
                         <Stack sx={{
                             position: "absolute",
                             top: "50%",
@@ -138,7 +138,7 @@ export default function Hero() {
                         </Stack >
                     </Box>
                     <Box sx={{ position: "relative" }}>
-                        <img width={"100%"} src="src\images\banner-16.jpg" alt="computer image" />
+                        <img width={"100%"} src=".\images\banner-16.jpg" alt="computer image" />
                         <Stack sx={{
                             position: "absolute",
                             top: "50%",
